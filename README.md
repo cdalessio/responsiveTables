@@ -15,9 +15,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-=================
+
 
 Responsive table presentation solutions
+=======================================
 
 Ever try to view a table on a phone? It's not much fun. Here are a couple simple solutions to this problem.
 It won't solve for every case, but it will handle a lot. This does not support every browser, but it should 
@@ -47,57 +48,55 @@ Known issues:
     Does not yet support touch/swipe to move through columns
     May not work fully with other CSS (though color changes should be fine) - it may, it's just not fully tested yet.
 
-Version 0.1
+Version 0.2
 
-====================
 Basic Markup pattern
-====================
-<code>
-&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; href=&quot;./style/responsiveTables.css&quot; media=&quot;all&quot;/&gt;
+--------------------
 
-&lt;div class=&quot;responsiveTableWrapper&quot;&gt;
-	&lt;table class=&quot;basic&quot;&gt;
-		&lt;thead&gt;
-			&lt;tr&gt;
-				&lt;th&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Monday&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Tuesday&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Wednesday&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Thursday&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Friday&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Saturday&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Sunday&lt;/span&gt;&lt;/th&gt;
-			&lt;/tr&gt;
-		&lt;/thead&gt;
-		&lt;tbody&gt;
-			&lt;tr&gt;
-				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
-				&lt;td&gt;&lt;span&gt;1&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;2&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;3&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;4&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;5&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;6&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;7&lt;/span&gt;&lt;/td&gt;
-			&lt;/tr&gt;
-			&lt;!-- add rows as appropriate
-		&lt;/tbody&gt;
-		&lt;tfoot&gt;
-			&lt;tr&gt;
-				&lt;th&gt;&lt;span&gt;&lt;/span&gt;&lt;/th&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-			&lt;/tr&gt;
-		
-		&lt;/tfoot&gt;
-	&lt;/table&gt;
-&lt;/div&gt;
 
-&lt;script type=&quot;text/javascript&quot; src=&quot;./script/responsiveTables.js&quot;&gt;&lt;/script&gt;
-</code>
-========================
+                &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; href=&quot;./style/responsiveTables.css&quot; media=&quot;all&quot;/&gt;
+                
+                &lt;div class=&quot;responsiveTableWrapper&quot;&gt;
+                    &lt;table class=&quot;basic&quot;&gt;
+                        &lt;thead&gt;
+                            &lt;tr&gt;
+                                &lt;th&gt;&lt;/th&gt;
+                                &lt;th&gt;&lt;span&gt;Monday&lt;/span&gt;&lt;/th&gt;
+                                &lt;th&gt;&lt;span&gt;Tuesday&lt;/span&gt;&lt;/th&gt;
+                                &lt;th&gt;&lt;span&gt;Wednesday&lt;/span&gt;&lt;/th&gt;
+                                &lt;th&gt;&lt;span&gt;Thursday&lt;/span&gt;&lt;/th&gt;
+                                &lt;th&gt;&lt;span&gt;Friday&lt;/span&gt;&lt;/th&gt;
+                                &lt;th&gt;&lt;span&gt;Saturday&lt;/span&gt;&lt;/th&gt;
+                                &lt;th&gt;&lt;span&gt;Sunday&lt;/span&gt;&lt;/th&gt;
+                            &lt;/tr&gt;
+                        &lt;/thead&gt;
+                        &lt;tbody&gt;
+                            &lt;tr&gt;
+                                &lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
+                                &lt;td&gt;&lt;span&gt;1&lt;/span&gt;&lt;/td&gt;
+                                &lt;td&gt;&lt;span&gt;2&lt;/span&gt;&lt;/td&gt;
+                                &lt;td&gt;&lt;span&gt;3&lt;/span&gt;&lt;/td&gt;
+                                &lt;td&gt;&lt;span&gt;4&lt;/span&gt;&lt;/td&gt;
+                                &lt;td&gt;&lt;span&gt;5&lt;/span&gt;&lt;/td&gt;
+                                &lt;td&gt;&lt;span&gt;6&lt;/span&gt;&lt;/td&gt;
+                                &lt;td&gt;&lt;span&gt;7&lt;/span&gt;&lt;/td&gt;
+                            &lt;/tr&gt;
+                            &lt;!-- add rows as appropriate
+                        &lt;/tbody&gt;
+                        &lt;tfoot&gt;
+                            &lt;tr&gt;
+                                &lt;th&gt;&lt;span&gt;&lt;/span&gt;&lt;/th&gt;
+                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+                            &lt;/tr&gt;
+                        
+                        &lt;/tfoot&gt;
+                    &lt;/table&gt;
+                &lt;/div&gt;
+                
+                &lt;script type=&quot;text/javascript&quot; src=&quot;./script/responsiveTables.js&quot;&gt;&lt;/script&gt;
