@@ -54,49 +54,49 @@ Basic Markup pattern
 --------------------
 
 
-                &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; href=&quot;./style/responsiveTables.css&quot; media=&quot;all&quot;/&gt;
+                <link rel="stylesheet" type="text/css" rel="stylesheet" href="./style/responsiveTables.css" media="all"/>
                 
-                &lt;div class=&quot;responsiveTableWrapper&quot;&gt;
-                    &lt;table class=&quot;basic&quot;&gt;
-                        &lt;thead&gt;
-                            &lt;tr&gt;
-                                &lt;th&gt;&lt;/th&gt;
-                                &lt;th&gt;&lt;span&gt;Monday&lt;/span&gt;&lt;/th&gt;
-                                &lt;th&gt;&lt;span&gt;Tuesday&lt;/span&gt;&lt;/th&gt;
-                                &lt;th&gt;&lt;span&gt;Wednesday&lt;/span&gt;&lt;/th&gt;
-                                &lt;th&gt;&lt;span&gt;Thursday&lt;/span&gt;&lt;/th&gt;
-                                &lt;th&gt;&lt;span&gt;Friday&lt;/span&gt;&lt;/th&gt;
-                                &lt;th&gt;&lt;span&gt;Saturday&lt;/span&gt;&lt;/th&gt;
-                                &lt;th&gt;&lt;span&gt;Sunday&lt;/span&gt;&lt;/th&gt;
-                            &lt;/tr&gt;
-                        &lt;/thead&gt;
-                        &lt;tbody&gt;
-                            &lt;tr&gt;
-                                &lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
-                                &lt;td&gt;&lt;span&gt;1&lt;/span&gt;&lt;/td&gt;
-                                &lt;td&gt;&lt;span&gt;2&lt;/span&gt;&lt;/td&gt;
-                                &lt;td&gt;&lt;span&gt;3&lt;/span&gt;&lt;/td&gt;
-                                &lt;td&gt;&lt;span&gt;4&lt;/span&gt;&lt;/td&gt;
-                                &lt;td&gt;&lt;span&gt;5&lt;/span&gt;&lt;/td&gt;
-                                &lt;td&gt;&lt;span&gt;6&lt;/span&gt;&lt;/td&gt;
-                                &lt;td&gt;&lt;span&gt;7&lt;/span&gt;&lt;/td&gt;
-                            &lt;/tr&gt;
-                            &lt;!-- add rows as appropriate
-                        &lt;/tbody&gt;
-                        &lt;tfoot&gt;
-                            &lt;tr&gt;
-                                &lt;th&gt;&lt;span&gt;&lt;/span&gt;&lt;/th&gt;
-                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-                                &lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-                            &lt;/tr&gt;
+                <div class="responsiveTableWrapper">
+                    <table class="basic">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th><span>Monday</span></th>
+                                <th><span>Tuesday</span></th>
+                                <th><span>Wednesday</span></th>
+                                <th><span>Thursday</span></th>
+                                <th><span>Friday</span></th>
+                                <th><span>Saturday</span></th>
+                                <th><span>Sunday</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th><span>Row Heading</span></th>
+                                <td><span>1</span></td>
+                                <td><span>2</span></td>
+                                <td><span>3</span></td>
+                                <td><span>4</span></td>
+                                <td><span>5</span></td>
+                                <td><span>6</span></td>
+                                <td><span>7</span></td>
+                            </tr>
+                            <!-- add rows as appropriate -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th><span></span></th>
+                                <td><span></span></td>
+                                <td><span></span></td>
+                                <td><span></span></td>
+                                <td><span></span></td>
+                                <td><span></span></td>
+                                <td><span></span></td>
+                                <td><span></span></td>
+                            </tr>
                         
-                        &lt;/tfoot&gt;
-                    &lt;/table&gt;
-                &lt;/div&gt;
+                        </tfoot>
+                    </table>
+                </div>
                 
-                &lt;script type=&quot;text/javascript&quot; src=&quot;./script/responsiveTables.js&quot;&gt;&lt;/script&gt;
+                <script type="text/javascript" src="./script/responsiveTables.js"></script>
