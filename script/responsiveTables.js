@@ -44,6 +44,21 @@
 		}
 		el.setAttribute("style", styleString);
 	}
+	var addClass = function(el, className) {
+		var ccn = el.getAttribute("class") || "";
+		el.setAttribute("class", ccn + " " + className);
+	}
+	var removeClass = function(el, className) {
+		var ccna = el.getAttribute("class").split(" "), classNames = "";
+		var l = ccna.length, i;
+		for (i = 0; i < l; i++) {
+			var ccn = ccna[i]; 
+			if(!(ccn == className)) {
+				classNames += ccn + " "
+			}
+		}
+		el.setAttribute("class", classNames.trim());
+	}
 	
 	// let the table define itself with proper cell widths so we can get dimensions properly
 	wrapper.setAttribute("style","visibility: hidden; width: 100000px;");
@@ -67,10 +82,10 @@
 	
 	// clean up temporary style and enable responsive CSS properties
 	wrapper.removeAttribute("style");
-	var currentClassNames = table.getAttribute("class") || "";
-	table.setAttribute("class", currentClassNames + " responsive");
+	
+	addClass(table, "responsive");
 	var columnWidth = getWidth(columns[1][1]);
-	var currentDisplayedColumn = 1;
+	var currentDisplayedColumn = 1, translateXOffset = 0;
 	
 	var changeDisplayedColumn = function(colIndex) {
 		if (colIndex >= (numberOfColumns - 1)) {
@@ -78,11 +93,14 @@
 		} else if (colIndex < 0) {
 			colIndex = 0; // if below min, set to min
 		}
-		currentDisplayedColumn = colIndex + 1;
+		
+		currentDisplayedColumn = colIndex + 1, translateXOffset = (-1*(colIndex * columnWidth))
 		for (var i = 0; i < numberOfRows; i++) {
 			// we'll always set margin on the 1st column of data - this leaves row headings in place
-			//columns[firstDataColumn][i].setAttribute("style","height: " + rowHeights[i] + "px; margin-left: -" + (colIndex * columnWidth) + "px;");
-			setStyle(columns[firstDataColumn][i],{"height":rowHeights[i]+"px","margin-left":(-1*(colIndex * columnWidth))+"px"});
+			setStyle(columns[firstDataColumn][i], {
+				"height":rowHeights[i]+"px",
+				"margin-left": translateXOffset + "px"
+			});
 		}	
 	};
 	
@@ -136,5 +154,40 @@
 	var thead = table.querySelector("thead");
 	thead.addEventListener("click", showDropdown);
 	dropdown.addEventListener("click", selectColumn);
+	
+	// Set up swipe!
+	// when the user releases, this derives the theoretical column we should snap to;
+	// since changeDisplayedColumn manages out-of-bounds, we don't have to here.
+	var getColumnFromPosition = function(xpos) {
+		var colIndex = 0;
+		colIndex = Math.round((-1 * xpos) / columnWidth);
+		console.log(colIndex);
+		return colIndex;
+	}
+	var startX = deltaX = 0, interactive = false;
+	var startMove = function(e) {
+		addClass(table, "interactive");
+		startX = e.clientX;
+		interactive = true;
+	}
+	var doMove = function(e) {
+		e.preventDefault();
+		if (!interactive) return;
+		deltaX = e.clientX - startX;
+		var newTranslate = translateXOffset + deltaX;
+		for (var i = 0; i < numberOfRows; i++) {
+			// we'll always set margin on the 1st column of data - this leaves row headings in place
+			setStyle(columns[firstDataColumn][i],{"height":rowHeights[i]+"px", "margin-left": newTranslate + "px"});
+		}
+	}
+	var endMove = function(e) {
+		removeClass(table, "interactive");
+		interactive = false;
+		changeDisplayedColumn(getColumnFromPosition(deltaX + translateXOffset));
+	}
+	var tbody = wrapper.querySelector("tbody");
+	tbody.addEventListener("mousedown", startMove);
+	tbody.addEventListener("mousemove", doMove);
+	tbody.addEventListener("mouseup", endMove);
 	
 })(document, window);

@@ -56,6 +56,11 @@ table.responsive,
 .responsive th {
 	display: inline-block;
 	position: relative;
+	-moz-transform: translateZ(0);
+	-ms-transform: translateZ(0);
+	-o-transform: translateZ(0);
+	-webkit-transform: translateZ(0);
+	transform: translateZ(0);
 	-moz-transition-property: margin;
 	-moz-transition-duration: .25s;
 	-moz-transition-timing-function: ease;
@@ -69,6 +74,13 @@ table.responsive,
 	transition-duration: .25s;
 	transition-timing-function: ease;
 	width: 50%;
+}
+.responsive.interactive td,
+.responsive.interactive th {
+	-moz-transition-duration: 0s;
+	-o-transition-duration: 0s;
+	-webkit-transition-duration: 0s;
+	transition-duration: 0s;
 }
 .responsive tbody th {
 	text-align: left;
