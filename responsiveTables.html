@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<title>Responsive tables</title>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		<meta http-equiv="content-language" content="en-US" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<!--   Copyright 2012 CJD (Christopher D'Alessio)
+
+		   Licensed under the Apache License, Version 2.0 (the "License");
+		   you may not use this file except in compliance with the License.
+		   You may obtain a copy of the License at
+		
+		       http://www.apache.org/licenses/LICENSE-2.0
+		
+		   Unless required by applicable law or agreed to in writing, software
+		   distributed under the License is distributed on an "AS IS" BASIS,
+		   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+		   See the License for the specific language governing permissions and
+		   limitations under the License.
+		   -->
+		<link rel="stylesheet" type="text/css" rel="stylesheet" href="./style/responsiveTables.css" media="all"/>
+		<link href="./google-code-prettify/prettify.css" type="text/css" rel="stylesheet" />
+		<style type="text/css">
+			p,
+			li {
+				font-family: arial;
+				font-size: 12px;
+				line-height: 16px;
+			}
+			.dummyViewport {
+				border: 1px solid red;
+				height: 400px;
+				width: 320px;
+			}
+			.dummyViewport480 {
+				width: 480px;
+			}
+			.dummyViewport540 {
+				width: 540px;
+			}
+			.dummyViewport720 {
+				width: 720px;
+			}
+			.dummyViewport960 {
+				width: 960px;
+			}
+			.dummyViewport1024 {
+				width: 1024px;
+			}
+			
+		</style>
+	</head>
+	<body onload="prettyPrint()">
+		<h1>Responsive table presentation solutions</h1>
+		<p>
+			Ever try to view a table on a phone? It's not much fun. Here are a couple simple solutions to this problem. It won't solve for every case,  but it will handle a lot.
+			This does not support every browser, but it should work for the most common mobile browsers - it depends on querySelector and some CSS transformations. 
+			It could be converted to use your favorite javascript library, which would extend browser support. It probably won't work well in proxy browsers (Opera Mini, etc.)
+			Without the javascript, it will display as a plain table, so you can always leave that out.
+			<ul>
+				<li>Takes a table to a simple two-column layout</li>
+				<li>Creates a drop-down out of first row first-cell (ideally, your thead th's), allowing a user to change which columns display.</li>
+				<li>Works with or without a TH per row.</li>
+				<li>Mouse click/drag "swipe"</li>
+			</ul>
+		</p>
+		<p>This is very much still in-progress.</p>
+		<p>
+			Known issues:
+			<ul>
+				<li>Does not work correctly with colspan or rowspan (yet?)</li>
+				<li>IE support lacking</li>
+				<li>Not yet ideally responsive - it cuts any table to a two-column layout.</li>
+				<li>No TH per row needs a bit of buffing up visually</li>
+				<li>Does not yet support touch/swipe to move through columns</li>
+			</ul>
+		</p>
+		<p>Version 0.1</p>
+		<div class="dummyViewport dummyViewport720">
+		
+			<div class="responsiveTableWrapper">
+				<table class="basic">
+					<thead>
+						<tr>
+							<th></th>
+							<th><span>Monday</span></th>
+							<th><span>Tuesday</span></th>
+							<th><span>Wednesday</span></th>
+							<th><span>Thursday</span></th>
+							<th><span>Friday</span></th>
+							<th><span>Saturday</span></th>
+							<th><span>Sunday</span></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th><span>Row Heading</span></th>
+							<td><span>1</span></td>
+							<td><span>2</span></td>
+							<td><span>3</span></td>
+							<td><span>4</span></td>
+							<td><span>5</span></td>
+							<td><span>6</span></td>
+							<td><span>7</span></td>
+						</tr>
+						<tr>
+							<th><span>Row Heading</span></th>
+							<td><span>11</span></td>
+							<td><span>12</span></td>
+							<td><span>13</span></td>
+							<td><span>14</span></td>
+							<td><span>15</span></td>
+							<td><span>16</span></td>
+							<td><span>17</span></td>
+						</tr>
+						<tr>
+							<th><span>Row Heading</span></th>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+						</tr>
+						<tr>
+							<th><span>Row Heading</span></th>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+						</tr>
+						<tr>
+							<th><span>Row Heading</span></th>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+						</tr>
+						<tr>
+							<th><span>Row Heading</span></th>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+						</tr>
+					</tbody>
+					<tfoot>
+						<tr>
+							<th><span></span></th>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+							<td><span></span></td>
+						</tr>
+					
+					</tfoot>
+				</table>
+			</div>
+		
+		</div>
+		
+		<h2>Working HTML</h2>
+		<div class="codeSample">
+			<pre class="prettyprint">
+			<code class="lang-html">
+&lt;div class="responsiveTableWrapper"&gt;
+	&lt;table class="basic"&gt;
+		&lt;thead&gt;
+			&lt;tr&gt;
+				&lt;th&gt;&lt;span&gt;&lt;/span&gt;&lt;/th&gt;
+				&lt;th&gt;&lt;span&gt;Monday&lt;/span&gt;&lt;/th&gt;
+				&lt;th&gt;&lt;span&gt;Tuesday&lt;/span&gt;&lt;/th&gt;
+				&lt;th&gt;&lt;span&gt;Wednesday&lt;/span&gt;&lt;/th&gt;
+				&lt;th&gt;&lt;span&gt;Thursday&lt;/span&gt;&lt;/th&gt;
+				&lt;th&gt;&lt;span&gt;Friday&lt;/span&gt;&lt;/th&gt;
+				&lt;th&gt;&lt;span&gt;Saturday&lt;/span&gt;&lt;/th&gt;
+				&lt;th&gt;&lt;span&gt;Sunday&lt;/span&gt;&lt;/th&gt;
+			&lt;/tr&gt;
+		&lt;/thead&gt;
+		&lt;tbody&gt;
+			&lt;tr&gt;
+				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
+				&lt;td&gt;&lt;span&gt;1&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;2&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;3&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;4&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;5&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;6&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;7&lt;/span&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
+				&lt;td&gt;&lt;span&gt;11&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;12&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;13&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;14&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;15&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;16&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;17&lt;/span&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+		&lt;/tbody&gt;
+		&lt;tfoot&gt;
+			&lt;tr&gt;
+				&lt;th&gt;&lt;span&gt;&lt;/span&gt;&lt;/th&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+		
+		&lt;/tfoot&gt;
+	&lt;/table&gt;
+&lt;/div&gt;
+				</code>
+			</pre>
+		</div>
+		<script type="text/javascript" src="./google-code-prettify/prettify.js"></script>
+		<script type="text/javascript" src="./script/responsiveTables.js"></script>
+	</body>
+</html>

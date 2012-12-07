@@ -33,6 +33,8 @@ What works:
 * Creates a drop-down out of first row cells (ideally, your thead th's), allowing a user to change which columns display.
 * Works with or without a TH per row.
 * Mouse click/drag "swipe"
+* Sizes to initial viewport.
+* End-of-range highlighting when click/dragging
 
 This is very much still in-progress.
 
@@ -41,14 +43,12 @@ Expect versions supporting some popular JS libraries once the core functionality
 Known issues:
 
 * Does not work correctly with colspan or rowspan (yet?)
-* IE support lacking
-* Not yet ideally responsive - it cuts any table to a two-column layout, but still adapts to viewport - that can make for some
-* 	rather wide tables.
-* No TH per row needs a bit of buffing up visually - dropdown is still only half-width
+* IE support lacking;
+* Responsive-ish; does not currently support orientationChange or resize events to redraw; It should size to the initial display width on load, however.
 * Does not yet support touch/swipe to move through columns
 * May not work fully with other CSS (though color changes should be fine) - it may, it's just not fully tested yet.
 
-Version 0.2
+Version 0.3
 
 Basic Markup pattern
 --------------------

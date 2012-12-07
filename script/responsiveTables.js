@@ -14,13 +14,9 @@
 */
 
 (function (d,w) {
-	var wrapper = d.querySelector(".responsiveTableWrapper"), table = d.querySelector(".responsiveTableWrapper table");
-	var rows = table.querySelectorAll("tr"), rowArray = [], columns = [], headColumn;
-	var firstDataColumn = 1;
-	
 	// utility functions that most libraries will provide in one way or another
 	getNumFromProp = function(p) {
-		return Number(p.replace(/[^0-9]/g,""));	
+		return Math.round(Number(p.replace(/[^\.0-9]/g,"")));	
 	}
 	var getBorderWidths = function(el) {
 		var st = w.getComputedStyle(el);
@@ -59,9 +55,26 @@
 		}
 		el.setAttribute("class", classNames.trim());
 	}
+	var hasClass = function(el, className) {
+		var classAttr = el.getAttribute("class"), matchRegx = new RegExp("\\s*"+className+"\\s*");
+		return (classAttr && matchRegx.test(classAttr));
+	}
+	
+	var wrapper = d.querySelector(".responsiveTableWrapper"), table = d.querySelector(".responsiveTableWrapper table");
+	var rows = table.querySelectorAll("tr"), wrapperWidth = getWidth(wrapper), rowArray = [], columns = [];
+	var firstDataColumn = 1, dataColumnsDisplayed = 1;
 	
 	// let the table define itself with proper cell widths so we can get dimensions properly
 	wrapper.setAttribute("style","visibility: hidden; width: 100000px;");
+	
+	// exit init if we're already able to fit the whole table!
+	tableWidth = getWidth(table);
+	if (tableWidth < wrapperWidth) {
+		wrapper.removeAttribute("style");
+		return;	
+	}
+	
+	// get some data from the table so we can change elements to block/inline-block display
 	var numberOfRows = rows.length, numberOfColumns, rowHeights = [];
 	// gather rows and set row heights;
 	for (var i = 0; i < numberOfRows; i++) {
@@ -73,7 +86,7 @@
 				columns[j] = [];
 			}
 			var currentCell = columns[j][i] = currentRowArray[j];
-			if (j === 0 && currentCell.nodeName.toLowerCase() != "th") {
+			if (j === 0 && currentCell.nodeName != "TH") {
 				firstDataColumn = 0;
 			}
 			setStyle(currentCell, {"height":h+"px"});
@@ -84,17 +97,20 @@
 	wrapper.removeAttribute("style");
 	
 	addClass(table, "responsive");
-	var columnWidth = getWidth(columns[1][1]);
-	var currentDisplayedColumn = 1, translateXOffset = 0;
-	
+	var columnWidth = getWidth(columns[0][0]), tableWidth = getWidth(table);
+	var currentDisplayedColumn = 1, translateXOffset = 0, dataColumnsDisplayed = (Math.floor(wrapperWidth / columnWidth) - firstDataColumn);
+	var tableDisplayWidth = dataColumnsDisplayed + firstDataColumn;
+	setStyle(table, {
+		"width": (columnWidth * tableDisplayWidth) + "px"		
+	});
 	var changeDisplayedColumn = function(colIndex) {
-		if (colIndex >= (numberOfColumns - 1)) {
-			colIndex = numberOfColumns -2; // if over max, set to max
+		if (colIndex >= (numberOfColumns - dataColumnsDisplayed)) {
+			colIndex = numberOfColumns - dataColumnsDisplayed - 1; // if over max, set to max; -1 is to convert count to index
 		} else if (colIndex < 0) {
 			colIndex = 0; // if below min, set to min
 		}
 		
-		currentDisplayedColumn = colIndex + 1, translateXOffset = (-1*(colIndex * columnWidth))
+		currentDisplayedColumn = colIndex + 1, translateXOffset = (-1 * (colIndex * columnWidth))
 		for (var i = 0; i < numberOfRows; i++) {
 			// we'll always set margin on the 1st column of data - this leaves row headings in place
 			setStyle(columns[firstDataColumn][i], {
@@ -112,48 +128,59 @@
 	dropdown.setAttribute("class", "colHeadingDropdown");
 	var dropdownBorderWidths = getBorderWidths(dropdown);
 	var hBorderSum = getNumFromProp(dropdownBorderWidths.left) + getNumFromProp(dropdownBorderWidths.right);
-	var dropdownItems = [], dropdownWidth = (columnWidth - hBorderSum) + "px";
-	setStyle(dropdown, {"width": dropdownWidth});
+	var dropdownItems = [], dropdownWidth = (columnWidth - hBorderSum);
 	// create options
 	for (var i = 0; i < numberOfColumns; i++) {
 		var option = dropdownItems[i] = elementStore["div"].cloneNode();
 		option.innerHTML = rowArray[0][i].innerHTML + "&nbsp;";
 		option.setAttribute("data-index", i);
+		if (i > (numberOfColumns - dataColumnsDisplayed)) {
+			addClass(option, "unselectable");
+		}
 		dropdown.appendChild(option);
 	}
 	// make sure the dimensions are what we want them to be
-	setStyle(dropdown,{"visibility":"hidden","width":dropdownWidth});
+	setStyle(dropdown, {"visibility":"hidden"});
 	wrapper.appendChild(dropdown);
 	var dItemBorders = getBorderWidths(dropdown.children[1]);
-	var dropdownHeight = getNumFromProp(dItemBorders.top) + getNumFromProp(dItemBorders.bottom);
-	dropdownHeight = numberOfRows * (dropdownItems[0].clientHeight + dropdownHeight);
-	setStyle(dropdown,{"opacity": 0,"height": 0, "width": dropdownWidth});
+	var dropdownHeight = getNumFromProp(dItemBorders.top) + getNumFromProp(dItemBorders.bottom), itemHeight = dropdownItems[0].clientHeight;
+	dropdownHeight = numberOfRows * (itemHeight + dropdownHeight);
 	
+	var collapseDropdown = function() {
+		setStyle(dropdown, {"height": itemHeight + "px", "left": (firstDataColumn * dropdownWidth) + "px", "width": dropdownWidth + "px"});
+		removeClass(dropdown, "expanded");
+	}
+	collapseDropdown(); // initialize placement in collapsed state
 	var showDropdown = function() {
 		for (var i = 0; i < numberOfColumns; i++) {
 			if (i == currentDisplayedColumn) {
 				dropdownItems[i].setAttribute("class","selected");
-			} else {
+			} else if (!hasClass(dropdownItems[i], "unselectable")) {
 				dropdownItems[i].removeAttribute("class");
 			}
 		}
-		setStyle(dropdown, {"height": dropdownHeight+"px", "width": dropdownWidth});
+		setStyle(dropdown, {"height": dropdownHeight + "px", "left": (firstDataColumn * dropdownWidth) + "px", "width": dropdownWidth + "px"});
+		addClass(dropdown, "expanded");
 	};
 	var selectColumn = function(e) {
 		var index = Number(e.target.getAttribute("data-index")) || Number(e.target.parentNode.getAttribute("data-index"));
-		if (index >= firstDataColumn) {
+		if (index >= firstDataColumn && index <= (numberOfColumns - dataColumnsDisplayed)) {
 			changeDisplayedColumn((index - 1));
 		}
-		setStyle(dropdown, {"opacity": 0, "height": 0, "width": dropdownWidth});
+		collapseDropdown();
 	};
+	var toggleDropdown = function(e) {
+		if (hasClass(dropdown, "expanded")) {
+			selectColumn(e);
+		} else {
+			showDropdown();
+		}
+	}
 	
 	var icon = elementStore["span"].cloneNode();
 	icon.setAttribute("class","actionIcon");
-	wrapper.appendChild(icon);
-	icon.addEventListener("click", showDropdown);
-	var thead = table.querySelector("thead");
-	thead.addEventListener("click", showDropdown);
-	dropdown.addEventListener("click", selectColumn);
+	dropdown.appendChild(icon);
+	dropdown.addEventListener("click", toggleDropdown);
 	
 	// Set up swipe!
 	// when the user releases, this derives the theoretical column we should snap to;
@@ -161,7 +188,6 @@
 	var getColumnFromPosition = function(xpos) {
 		var colIndex = 0;
 		colIndex = Math.round((-1 * xpos) / columnWidth);
-		console.log(colIndex);
 		return colIndex;
 	}
 	var startX = deltaX = 0, interactive = false;
@@ -174,14 +200,26 @@
 		e.preventDefault();
 		if (!interactive) return;
 		deltaX = e.clientX - startX;
-		var newTranslate = translateXOffset + deltaX;
-		for (var i = 0; i < numberOfRows; i++) {
-			// we'll always set margin on the 1st column of data - this leaves row headings in place
-			setStyle(columns[firstDataColumn][i],{"height":rowHeights[i]+"px", "margin-left": newTranslate + "px"});
+		var newTranslate = translateXOffset + deltaX, maxTranslate = ((numberOfColumns - dataColumnsDisplayed - firstDataColumn) * columnWidth * -1) - 50;
+		if (newTranslate < maxTranslate) {
+			if (!hasClass(table, "maxRight")) {
+				addClass(table, "maxRight");
+			}
+		} else if (newTranslate > 50) {
+			if (!hasClass(table, "maxLeft")) {
+				addClass(table, "maxLeft");
+			}
+		} else {
+			for (var i = 0; i < numberOfRows; i++) {
+				// we'll always set margin on the 1st column of data - this leaves row headings in place
+				setStyle(columns[firstDataColumn][i],{"height":rowHeights[i]+"px", "margin-left": newTranslate + "px"});
+			}
 		}
 	}
 	var endMove = function(e) {
 		removeClass(table, "interactive");
+		removeClass(table, "maxRight");
+		removeClass(table, "maxLeft");
 		interactive = false;
 		changeDisplayedColumn(getColumnFromPosition(deltaX + translateXOffset));
 	}
