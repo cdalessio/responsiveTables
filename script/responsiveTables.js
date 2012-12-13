@@ -17,7 +17,7 @@
 	// utility functions that most libraries will provide in one way or another
 	getNumFromProp = function(p) {
 		return Math.round(Number(p.replace(/[^\.0-9]/g,"")));	
-	}
+	};
 	var getBorderWidths = function(el) {
 		var st = w.getComputedStyle(el);
 		return {
@@ -26,26 +26,37 @@
 			"bottom":st.getPropertyValue("border-bottom-width"), 
 			"left":st.getPropertyValue("border-left-width")
 		};
-	}
+	};
+	var getPadding = function(el) {
+		var st = w.getComputedStyle(el);
+		return {
+			"top":st.getPropertyValue("padding-top"), 
+			"right":st.getPropertyValue("padding-right"), 
+			"bottom":st.getPropertyValue("padding-bottom"), 
+			"left":st.getPropertyValue("padding-left")
+		};
+	};
 	var getWidth = function(el) {
 		var wd = el.clientWidth;
 		var wds = getBorderWidths(el);
 		wd = wd + getNumFromProp(wds.right) + getNumFromProp(wds.left);
 		return wd;
-	}
+	};
 	var setStyle = function(el,styles) {
 		var styleString = "", key;
 		for (key in styles) {
 			styleString += key + ":" + styles[key] + ";";
 		}
 		el.setAttribute("style", styleString);
-	}
+	};
 	var addClass = function(el, className) {
 		var ccn = el.getAttribute("class") || "";
 		el.setAttribute("class", ccn + " " + className);
-	}
+	};
 	var removeClass = function(el, className) {
-		var ccna = el.getAttribute("class").split(" "), classNames = "";
+		var ccna = el.getAttribute("class"), classNames = "";
+		if (!ccna) return; // nothing to work with
+		ccna = ccna.split(" ");
 		var l = ccna.length, i;
 		for (i = 0; i < l; i++) {
 			var ccn = ccna[i]; 
@@ -54,11 +65,15 @@
 			}
 		}
 		el.setAttribute("class", classNames.trim());
-	}
+	};
 	var hasClass = function(el, className) {
 		var classAttr = el.getAttribute("class"), matchRegx = new RegExp("\\s*"+className+"\\s*");
 		return (classAttr && matchRegx.test(classAttr));
-	}
+	};
+	
+	/* -------------------------------------
+	Start of core code for responsive table solution.
+	*/
 	
 	var wrapper = d.querySelector(".responsiveTableWrapper"), table = d.querySelector(".responsiveTableWrapper table");
 	var rows = table.querySelectorAll("tr"), wrapperWidth = getWidth(wrapper), rowArray = [], columns = [];
@@ -67,20 +82,17 @@
 	// let the table define itself with proper cell widths so we can get dimensions properly
 	wrapper.setAttribute("style","visibility: hidden; width: 100000px;");
 	
-	// exit init if we're already able to fit the whole table!
-	tableWidth = getWidth(table);
-	if (tableWidth < wrapperWidth) {
-		wrapper.removeAttribute("style");
-		return;	
-	}
-	
+	var tableWidth = getWidth(table);
+
 	// get some data from the table so we can change elements to block/inline-block display
-	var numberOfRows = rows.length, numberOfColumns, rowHeights = [];
+	var numberOfRows = rows.length, numberOfColumns = 0, rowHeights = [], cellHeights = [];
 	// gather rows and set row heights;
 	for (var i = 0; i < numberOfRows; i++) {
 		var currentRow = rows[i];
 		var currentRowArray = rowArray[i] = currentRow.querySelectorAll("th, td"); // store this for easy access later without DOM crawling
 		var h = rowHeights[i] = currentRow.clientHeight, numberOfColumns = currentRowArray.length;
+		cellHeights[i] = [];
+		setStyle(currentRow, {"height": h + "px"});
 		for (var j = 0; j < numberOfColumns; j++) { // set the heights, store references to column array for easy access later without DOM crawling
 			if (!columns[j]) {
 				columns[j] = [];
@@ -89,7 +101,9 @@
 			if (j === 0 && currentCell.nodeName != "TH") {
 				firstDataColumn = 0;
 			}
-			setStyle(currentCell, {"height":h+"px"});
+			var cp = getPadding(currentCell);
+			cp = cellHeights[i][j] = (getNumFromProp(cp.top) + getNumFromProp(cp.bottom));
+			setStyle(currentCell, {"height":(h - cp) + "px"});
 		}
 	}
 	
@@ -98,11 +112,8 @@
 	
 	addClass(table, "responsive");
 	var columnWidth = getWidth(columns[0][0]), tableWidth = getWidth(table);
-	var currentDisplayedColumn = 1, translateXOffset = 0, dataColumnsDisplayed = (Math.floor(wrapperWidth / columnWidth) - firstDataColumn);
-	var tableDisplayWidth = dataColumnsDisplayed + firstDataColumn;
-	setStyle(table, {
-		"width": (columnWidth * tableDisplayWidth) + "px"		
-	});
+	var currentDisplayedColumn = 1, translateXOffset = 0;
+	
 	var changeDisplayedColumn = function(colIndex) {
 		if (colIndex >= (numberOfColumns - dataColumnsDisplayed)) {
 			colIndex = numberOfColumns - dataColumnsDisplayed - 1; // if over max, set to max; -1 is to convert count to index
@@ -114,7 +125,7 @@
 		for (var i = 0; i < numberOfRows; i++) {
 			// we'll always set margin on the 1st column of data - this leaves row headings in place
 			setStyle(columns[firstDataColumn][i], {
-				"height":rowHeights[i]+"px",
+				"height": cellHeights[1][i] + "px",
 				"margin-left": translateXOffset + "px"
 			});
 		}	
@@ -139,6 +150,19 @@
 		}
 		dropdown.appendChild(option);
 	}
+	var setSelectableItems = function() {
+		var maxDisplayableCols = numberOfColumns - dataColumnsDisplayed; 
+		for (var i = 0; i < numberOfColumns; i++) {
+			var option = dropdownItems[i];
+			if (i > maxDisplayableCols) {
+				addClass(option, "unselectable");
+				removeClass(option, "selected");
+			} else {
+				removeClass(option, "unselectable");
+			}
+		}
+	}
+	
 	// make sure the dimensions are what we want them to be
 	setStyle(dropdown, {"visibility":"hidden"});
 	wrapper.appendChild(dropdown);
@@ -192,14 +216,16 @@
 	}
 	var startX = deltaX = 0, interactive = false;
 	var startMove = function(e) {
+		e.preventDefault();
 		addClass(table, "interactive");
-		startX = e.clientX;
+		startX = e.changedTouches?e.changedTouches[0].clientX:e.clientX;
 		interactive = true;
 	}
 	var doMove = function(e) {
 		e.preventDefault();
 		if (!interactive) return;
-		deltaX = e.clientX - startX;
+		deltaX = e.changedTouches?e.changedTouches[0].clientX:e.clientX;
+		deltaX = deltaX - startX;
 		var newTranslate = translateXOffset + deltaX, maxTranslate = ((numberOfColumns - dataColumnsDisplayed - firstDataColumn) * columnWidth * -1) - 50;
 		if (newTranslate < maxTranslate) {
 			if (!hasClass(table, "maxRight")) {
@@ -217,15 +243,43 @@
 		}
 	}
 	var endMove = function(e) {
+		e.preventDefault();
 		removeClass(table, "interactive");
 		removeClass(table, "maxRight");
 		removeClass(table, "maxLeft");
 		interactive = false;
 		changeDisplayedColumn(getColumnFromPosition(deltaX + translateXOffset));
 	}
+	
+	// event listeners for dragable columns
 	var tbody = wrapper.querySelector("tbody");
 	tbody.addEventListener("mousedown", startMove);
 	tbody.addEventListener("mousemove", doMove);
 	tbody.addEventListener("mouseup", endMove);
+	if (("ontouchstart" in document)) {
+		tbody.addEventListener("touchstart", startMove);
+		tbody.addEventListener("touchmove", doMove);
+		tbody.addEventListener("touchend", endMove);
+		tbody.addEventListener("touchcancel", endMove);
+	}
+	
+	// final init and resize handling 
+	var setColumnsToDisplay = function() {
+		wrapperWidth = getWidth(wrapper);
+		dataColumnsDisplayed = (Math.floor(wrapperWidth / columnWidth) - firstDataColumn);
+		var tableDisplayWidth = dataColumnsDisplayed + firstDataColumn;
+		setStyle(table, {
+			"width": (columnWidth * tableDisplayWidth) + "px"		
+		});
+		var properStartCol = numberOfColumns - dataColumnsDisplayed;
+		if (currentDisplayedColumn > properStartCol) {
+			changeDisplayedColumn(properStartCol);
+		}
+		setSelectableItems();
+	};
+	
+	setColumnsToDisplay();
+	w.addEventListener("resize", setColumnsToDisplay);
+	//w.addEventListener("orientationchange", setColumnsToDisplay);
 	
 })(document, window);

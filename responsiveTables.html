@@ -28,27 +28,6 @@
 				font-size: 12px;
 				line-height: 16px;
 			}
-			.dummyViewport {
-				border: 1px solid red;
-				height: 400px;
-				width: 320px;
-			}
-			.dummyViewport480 {
-				width: 480px;
-			}
-			.dummyViewport540 {
-				width: 540px;
-			}
-			.dummyViewport720 {
-				width: 720px;
-			}
-			.dummyViewport960 {
-				width: 960px;
-			}
-			.dummyViewport1024 {
-				width: 1024px;
-			}
-			
 		</style>
 	</head>
 	<body onload="prettyPrint()">
@@ -63,6 +42,9 @@
 				<li>Creates a drop-down out of first row first-cell (ideally, your thead th's), allowing a user to change which columns display.</li>
 				<li>Works with or without a TH per row.</li>
 				<li>Mouse click/drag "swipe"</li>
+				<li>Initial touch event support (should work, but not thoroughly tested)</li>
+				<li>Responsive/adaptive, tailoring number of displayed columns to available space</li>
+				<li>End-of-range highlighting when click/dragging</li>
 			</ul>
 		</p>
 		<p>This is very much still in-progress.</p>
@@ -70,109 +52,104 @@
 			Known issues:
 			<ul>
 				<li>Does not work correctly with colspan or rowspan (yet?)</li>
-				<li>IE support lacking</li>
-				<li>Not yet ideally responsive - it cuts any table to a two-column layout.</li>
-				<li>No TH per row needs a bit of buffing up visually</li>
-				<li>Does not yet support touch/swipe to move through columns</li>
+				<li>IE support lacking (depends on querySelector and similar, available in modern browsers...)</li>
+				<li>No row TH doesn't work at the moment</li>
+				<li>May not work fully with other CSS (though color changes should be fine) - it may, not fully tested yet.</li>
 			</ul>
 		</p>
-		<p>Version 0.1</p>
-		<div class="dummyViewport dummyViewport720">
-		
-			<div class="responsiveTableWrapper">
-				<table class="basic">
-					<thead>
-						<tr>
-							<th></th>
-							<th><span>Monday</span></th>
-							<th><span>Tuesday</span></th>
-							<th><span>Wednesday</span></th>
-							<th><span>Thursday</span></th>
-							<th><span>Friday</span></th>
-							<th><span>Saturday</span></th>
-							<th><span>Sunday</span></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<th><span>Row Heading</span></th>
-							<td><span>1</span></td>
-							<td><span>2</span></td>
-							<td><span>3</span></td>
-							<td><span>4</span></td>
-							<td><span>5</span></td>
-							<td><span>6</span></td>
-							<td><span>7</span></td>
-						</tr>
-						<tr>
-							<th><span>Row Heading</span></th>
-							<td><span>11</span></td>
-							<td><span>12</span></td>
-							<td><span>13</span></td>
-							<td><span>14</span></td>
-							<td><span>15</span></td>
-							<td><span>16</span></td>
-							<td><span>17</span></td>
-						</tr>
-						<tr>
-							<th><span>Row Heading</span></th>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-						</tr>
-						<tr>
-							<th><span>Row Heading</span></th>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-						</tr>
-						<tr>
-							<th><span>Row Heading</span></th>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-						</tr>
-						<tr>
-							<th><span>Row Heading</span></th>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-						</tr>
-					</tbody>
-					<tfoot>
-						<tr>
-							<th><span></span></th>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-							<td><span></span></td>
-						</tr>
-					
-					</tfoot>
-				</table>
-			</div>
-		
+		<p>Version 0.4</p>
+		<div class="responsiveTableWrapper">
+			<table class="basic">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Monday</th>
+						<th>Tuesday</th>
+						<th>Wednesday</th>
+						<th>Thursday</th>
+						<th>Friday</th>
+						<th>Saturday</th>
+						<th>Sunday</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th>Row Heading</th>
+						<td>1</td>
+						<td>2</td>
+						<td>3</td>
+						<td>4</td>
+						<td>5</td>
+						<td>6</td>
+						<td>7</td>
+					</tr>
+					<tr>
+						<th>Row Heading</th>
+						<td>11</td>
+						<td>12</td>
+						<td>13</td>
+						<td>14</td>
+						<td>15</td>
+						<td>16</td>
+						<td>17</td>
+					</tr>
+					<tr>
+						<th>Row Heading</th>
+						<td>11</td>
+						<td>22</td>
+						<td>33</td>
+						<td>44</td>
+						<td>55</td>
+						<td>66</td>
+						<td>77</td>
+					</tr>
+					<tr>
+						<th>Row Heading</th>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<th>Row Heading</th>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+					<tr>
+						<th>Row Heading</th>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				</tbody>
+				<tfoot>
+					<tr>
+						<th></th>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				
+				</tfoot>
+			</table>
 		</div>
-		
+
 		<h2>Working HTML</h2>
 		<div class="codeSample">
 			<pre class="prettyprint">
@@ -181,88 +158,88 @@
 	&lt;table class="basic"&gt;
 		&lt;thead&gt;
 			&lt;tr&gt;
-				&lt;th&gt;&lt;span&gt;&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Monday&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Tuesday&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Wednesday&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Thursday&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Friday&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Saturday&lt;/span&gt;&lt;/th&gt;
-				&lt;th&gt;&lt;span&gt;Sunday&lt;/span&gt;&lt;/th&gt;
+				&lt;th&gt;&lt;/th&gt;
+				&lt;th&gt;Monday&lt;/th&gt;
+				&lt;th&gt;Tuesday&lt;/th&gt;
+				&lt;th&gt;Wednesday&lt;/th&gt;
+				&lt;th&gt;Thursday&lt;/th&gt;
+				&lt;th&gt;Friday&lt;/th&gt;
+				&lt;th&gt;Saturday&lt;/th&gt;
+				&lt;th&gt;Sunday&lt;/th&gt;
 			&lt;/tr&gt;
 		&lt;/thead&gt;
 		&lt;tbody&gt;
 			&lt;tr&gt;
-				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
-				&lt;td&gt;&lt;span&gt;1&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;2&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;3&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;4&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;5&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;6&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;7&lt;/span&gt;&lt;/td&gt;
+				&lt;th&gt;Row Heading&lt;/th&gt;
+				&lt;td&gt;1&lt;/td&gt;
+				&lt;td&gt;2&lt;/td&gt;
+				&lt;td&gt;3&lt;/td&gt;
+				&lt;td&gt;4&lt;/td&gt;
+				&lt;td&gt;5&lt;/td&gt;
+				&lt;td&gt;6&lt;/td&gt;
+				&lt;td&gt;7&lt;/td&gt;
 			&lt;/tr&gt;
 			&lt;tr&gt;
-				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
-				&lt;td&gt;&lt;span&gt;11&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;12&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;13&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;14&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;15&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;16&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;17&lt;/span&gt;&lt;/td&gt;
+				&lt;th&gt;Row Heading&lt;/th&gt;
+				&lt;td&gt;11&lt;/td&gt;
+				&lt;td&gt;12&lt;/td&gt;
+				&lt;td&gt;13&lt;/td&gt;
+				&lt;td&gt;14&lt;/td&gt;
+				&lt;td&gt;15&lt;/td&gt;
+				&lt;td&gt;16&lt;/td&gt;
+				&lt;td&gt;17&lt;/td&gt;
 			&lt;/tr&gt;
 			&lt;tr&gt;
-				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;th&gt;Row Heading&lt;/th&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
 			&lt;/tr&gt;
 			&lt;tr&gt;
-				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;th&gt;Row Heading&lt;/th&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
 			&lt;/tr&gt;
 			&lt;tr&gt;
-				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;th&gt;Row Heading&lt;/th&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
 			&lt;/tr&gt;
 			&lt;tr&gt;
-				&lt;th&gt;&lt;span&gt;Row Heading&lt;/span&gt;&lt;/th&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;th&gt;Row Heading&lt;/th&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
 			&lt;/tr&gt;
 		&lt;/tbody&gt;
 		&lt;tfoot&gt;
 			&lt;tr&gt;
-				&lt;th&gt;&lt;span&gt;&lt;/span&gt;&lt;/th&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
-				&lt;td&gt;&lt;span&gt;&lt;/span&gt;&lt;/td&gt;
+				&lt;th&gt;&lt;/th&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
+				&lt;td&gt;&lt;/td&gt;
 			&lt;/tr&gt;
 		
 		&lt;/tfoot&gt;

@@ -33,7 +33,7 @@ table.basic {
 	border-right: 1px dotted #ccc;	
 	font-size: 16px; /* reset font-size since we had to set row to 0 */
 	margin: 0;
-	padding: 0;
+	padding: 6px 8px;
 	width: 120px;
 }
 .basic td>span,
@@ -168,8 +168,8 @@ table.interactive + .colHeadingDropdown {
 	box-shadow: inset 25px 0 25px 15px #fff, inset -20px 0 25px -15px rgba(255, 0, 0, .5);
 }
 .interactive.maxLeft {
-	-o-box-shadow: inset -25px 0 25px 15px #fff, inset 180px 0 25px -25px rgba(255, 0, 0, .5);
-	-webkit-box-shadow: inset -25px 0 25px 15px #fff, inset 180px 0 25px -25px rgba(255, 0, 0, .5);
-	box-shadow: inset -25px 0 25px 15px #fff, inset 180px 0 25px -25px rgba(255, 0, 0, .5);
+	-o-box-shadow: inset -25px 0 25px 15px #fff, inset 185px 0 25px -25px rgba(255, 0, 0, .5);
+	-webkit-box-shadow: inset -25px 0 25px 15px #fff, inset 185px 0 25px -25px rgba(255, 0, 0, .5);
+	box-shadow: inset -25px 0 25px 15px #fff, inset 185px 0 25px -25px rgba(255, 0, 0, .5);
 }
 

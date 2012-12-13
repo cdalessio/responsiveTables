@@ -33,7 +33,8 @@ What works:
 * Creates a drop-down out of first row cells (ideally, your thead th's), allowing a user to change which columns display.
 * Works with or without a TH per row.
 * Mouse click/drag "swipe"
-* Sizes to initial viewport.
+* Initial touch event support (should work, but not thoroughly tested)
+* Responsive/adaptive, tailoring number of displayed columns to available space
 * End-of-range highlighting when click/dragging
 
 This is very much still in-progress.
@@ -43,12 +44,11 @@ Expect versions supporting some popular JS libraries once the core functionality
 Known issues:
 
 * Does not work correctly with colspan or rowspan (yet?)
-* IE support lacking;
-* Responsive-ish; does not currently support orientationChange or resize events to redraw; It should size to the initial display width on load, however.
-* Does not yet support touch/swipe to move through columns
-* May not work fully with other CSS (though color changes should be fine) - it may, it's just not fully tested yet.
+* IE, etc. support lacking; (depends on querySelector and similar, available in modern browsers...)
+* No row TH doesn't work at the moment
+* May not work fully with other CSS (though color changes should be fine) - it may, not fully tested yet.
 
-Version 0.3
+Version 0.4
 
 Basic Markup pattern
 --------------------
@@ -61,38 +61,38 @@ Basic Markup pattern
                         <thead>
                             <tr>
                                 <th></th>
-                                <th><span>Monday</span></th>
-                                <th><span>Tuesday</span></th>
-                                <th><span>Wednesday</span></th>
-                                <th><span>Thursday</span></th>
-                                <th><span>Friday</span></th>
-                                <th><span>Saturday</span></th>
-                                <th><span>Sunday</span></th>
+                                <th>Monday</th>
+                                <th>Tuesday</th>
+                                <th>Wednesday</th>
+                                <th>Thursday</th>
+                                <th>Friday</th>
+                                <th>Saturday</th>
+                                <th>Sunday</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <th><span>Row Heading</span></th>
-                                <td><span>1</span></td>
-                                <td><span>2</span></td>
-                                <td><span>3</span></td>
-                                <td><span>4</span></td>
-                                <td><span>5</span></td>
-                                <td><span>6</span></td>
-                                <td><span>7</span></td>
+                                <th>Row Heading</th>
+                                <td>1</td>
+                                <td>2</td>
+                                <td>3</td>
+                                <td>4</td>
+                                <td>5</td>
+                                <td>6</td>
+                                <td>7</td>
                             </tr>
                             <!-- add rows as appropriate -->
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th><span></span></th>
-                                <td><span></span></td>
-                                <td><span></span></td>
-                                <td><span></span></td>
-                                <td><span></span></td>
-                                <td><span></span></td>
-                                <td><span></span></td>
-                                <td><span></span></td>
+                                <th></th>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                             </tr>
                         
                         </tfoot>
