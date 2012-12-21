@@ -13,273 +13,339 @@
 	limitations under the License.
 */
 
-(function (d,w) {
+(function (d,w, undefined) {
+		
+	if(!("querySelectorAll" in d)) return; // depends on this, so exit since this won't work.
+	
 	// utility functions that most libraries will provide in one way or another
-	getNumFromProp = function(p) {
-		return Math.round(Number(p.replace(/[^\.0-9]/g,"")));	
-	};
-	var getBorderWidths = function(el) {
-		var st = w.getComputedStyle(el);
-		return {
-			"top":st.getPropertyValue("border-top-width"), 
-			"right":st.getPropertyValue("border-right-width"), 
-			"bottom":st.getPropertyValue("border-bottom-width"), 
-			"left":st.getPropertyValue("border-left-width")
-		};
-	};
-	var getPadding = function(el) {
-		var st = w.getComputedStyle(el);
-		return {
-			"top":st.getPropertyValue("padding-top"), 
-			"right":st.getPropertyValue("padding-right"), 
-			"bottom":st.getPropertyValue("padding-bottom"), 
-			"left":st.getPropertyValue("padding-left")
-		};
-	};
-	var getWidth = function(el) {
-		var wd = el.clientWidth;
-		var wds = getBorderWidths(el);
-		wd = wd + getNumFromProp(wds.right) + getNumFromProp(wds.left);
-		return wd;
-	};
-	var setStyle = function(el,styles) {
-		var styleString = "", key;
-		for (key in styles) {
-			styleString += key + ":" + styles[key] + ";";
-		}
-		el.setAttribute("style", styleString);
-	};
-	var addClass = function(el, className) {
-		var ccn = el.getAttribute("class") || "";
-		el.setAttribute("class", ccn + " " + className);
-	};
-	var removeClass = function(el, className) {
-		var ccna = el.getAttribute("class"), classNames = "";
-		if (!ccna) return; // nothing to work with
-		ccna = ccna.split(" ");
-		var l = ccna.length, i;
-		for (i = 0; i < l; i++) {
-			var ccn = ccna[i]; 
-			if(!(ccn == className)) {
-				classNames += ccn + " "
+	var util = {
+		getNumFromProp: function(p) {
+			return Math.round(Number(p.replace(/[^\.0-9]/g,"")));	
+		},
+		getBorderWidths: function(el) {
+			var st = w.getComputedStyle(el);
+			return {
+				"top":st.getPropertyValue("border-top-width"), 
+				"right":st.getPropertyValue("border-right-width"), 
+				"bottom":st.getPropertyValue("border-bottom-width"), 
+				"left":st.getPropertyValue("border-left-width")
+			};
+		},
+		getPadding: function(el) {
+			var st = w.getComputedStyle(el);
+			return {
+				"top":st.getPropertyValue("padding-top"), 
+				"right":st.getPropertyValue("padding-right"), 
+				"bottom":st.getPropertyValue("padding-bottom"), 
+				"left":st.getPropertyValue("padding-left")
+			};
+		},
+		getWidth: function(el) {
+			var wd = el.clientWidth;
+			var wds = util.getBorderWidths(el);
+			wd = wd + util.getNumFromProp(wds.right) + util.getNumFromProp(wds.left);
+			return wd;
+		},
+		setStyle: function(el,styles) {
+			var styleString = "", key;
+			for (key in styles) {
+				styleString += key + ":" + styles[key] + ";";
 			}
+			el.setAttribute("style", styleString);
+		},
+		addClass: function(el, className) {
+			var ccn = el.getAttribute("class") || "";
+			el.setAttribute("class", ccn + " " + className);
+		},
+		removeClass: function(el, className) {
+			var ccna = el.getAttribute("class"), classNames = "";
+			if (!ccna) return; // nothing to work with
+			ccna = ccna.split(" ");
+			var l = ccna.length, i;
+			for (i = 0; i < l; i++) {
+				var ccn = ccna[i]; 
+				if(!(ccn == className)) {
+					classNames += ccn + " "
+				}
+			}
+			el.setAttribute("class", classNames.trim());
+		},
+		hasClass: function(el, className) {
+			var classAttr = el.getAttribute("class"), matchRegx = new RegExp("\\s*"+className+"\\s*");
+			return (classAttr && matchRegx.test(classAttr));
 		}
-		el.setAttribute("class", classNames.trim());
 	};
-	var hasClass = function(el, className) {
-		var classAttr = el.getAttribute("class"), matchRegx = new RegExp("\\s*"+className+"\\s*");
-		return (classAttr && matchRegx.test(classAttr));
+	
+	// cloneNode seems to perform best in almost every case, so we'll create once, store, and clone. this use case may be simple enough this isn't useful.
+	var elementStore = {
+		div: d.createElement("div"),
+		span: d.createElement("span")
 	};
 	
 	/* -------------------------------------
-	Start of core code for responsive table solution.
+	Core code for responsive table solution.
 	*/
 	
-	var wrapper = d.querySelector(".responsiveTableWrapper"), table = d.querySelector(".responsiveTableWrapper table");
-	var rows = table.querySelectorAll("tr"), wrapperWidth = getWidth(wrapper), rowArray = [], columns = [];
-	var firstDataColumn = 1, dataColumnsDisplayed = 1;
+	var data = { // global references, these will be set in the initializers for later re-use
+		wrapper: d.querySelector(".responsiveTableWrapper"),
+		table: null,
+		dropdown: null,
+		rowArray: [],
+		columns: [],
+		dropdownItems: [],
+		maxTableWidth: 0,
+		columnWidth: 0,
+		dropdownWidth: 0,
+		dropdownItemHeight: 0,
+		leftDropdownPos: 0,
+		rowHeights: [],
+		cellHeights: [],
+		numberOfRows: 1,
+		numberOfColumns: 1,
+		firstDataColumn: 1,
+		dataColumnsDisplayed: 1,
+		currentDisplayedColumn: 1,
+		translateXOffset: 0,
+		startX: 0,
+		deltaX: 0,
+		interactive: false
+	};
 	
-	// let the table define itself with proper cell widths so we can get dimensions properly
-	wrapper.setAttribute("style","visibility: hidden; width: 100000px;");
-	
-	var tableWidth = getWidth(table);
+	var functions = {
+		initializeTable: function() {
 
-	// get some data from the table so we can change elements to block/inline-block display
-	var numberOfRows = rows.length, numberOfColumns = 0, rowHeights = [], cellHeights = [];
-	// gather rows and set row heights;
-	for (var i = 0; i < numberOfRows; i++) {
-		var currentRow = rows[i];
-		var currentRowArray = rowArray[i] = currentRow.querySelectorAll("th, td"); // store this for easy access later without DOM crawling
-		var h = rowHeights[i] = currentRow.clientHeight, numberOfColumns = currentRowArray.length;
-		cellHeights[i] = [];
-		setStyle(currentRow, {"height": h + "px"});
-		for (var j = 0; j < numberOfColumns; j++) { // set the heights, store references to column array for easy access later without DOM crawling
-			if (!columns[j]) {
-				columns[j] = [];
+			// let the table define itself with proper cell widths so we can get dimensions properly
+			data.wrapper.setAttribute("style","visibility: hidden; width: 100000px;");
+			data.table = data.wrapper.querySelector("table");
+			data.maxTableWidth = util.getWidth(data.table);
+			var rows = data.table.querySelectorAll("tr");
+			data.numberOfRows = rows.length;
+			
+			// gather rows and set row heights;
+			for (var i = 0; i < data.numberOfRows; i++) {
+				var currentRow = rows[i];
+				var currentRowArray = data.rowArray[i] = currentRow.querySelectorAll("th, td"); // store this for easy access later without DOM crawling
+				var h = data.rowHeights[i] = currentRow.clientHeight; 
+				data.numberOfColumns = currentRowArray.length;
+				data.cellHeights[i] = [];
+				
+				// set row height so it is correct when we convert away from table styles
+				util.setStyle(currentRow, {"height": h + "px"});
+				
+				for (var j = 0; j < data.numberOfColumns; j++) { // set the heights, store references to column array for easy access later without DOM crawling
+					if (!data.columns[j]) {
+						data.columns[j] = [];
+					}
+					var currentCell = data.columns[j][i] = currentRowArray[j];
+					if (j === 0 && currentCell.nodeName != "TH") {
+						data.firstDataColumn = 0;
+					}
+					var cp = util.getPadding(currentCell);
+					cp = data.cellHeights[i][j] = (h - (util.getNumFromProp(cp.top) + util.getNumFromProp(cp.bottom)));
+					util.setStyle(currentCell, {"height":cp + "px"}); // set height so it's right when we convert away from table styles
+				}
 			}
-			var currentCell = columns[j][i] = currentRowArray[j];
-			if (j === 0 && currentCell.nodeName != "TH") {
-				firstDataColumn = 0;
+			
+			// clean up temporary style and enable responsive CSS properties
+			data.wrapper.removeAttribute("style");
+			
+			util.addClass(data.table, "responsive");
+			data.columnWidth = util.getWidth(data.columns[0][0]); 
+			
+		},
+		initializeDropdown: function() {// build a dropdown out of column headings
+			data.dropdown = elementStore["div"].cloneNode();
+			data.dropdown.setAttribute("class", "colHeadingDropdown");
+			
+			var dropdownBorderWidths = util.getBorderWidths(data.dropdown);
+			var hBorderSum = util.getNumFromProp(dropdownBorderWidths.left) + util.getNumFromProp(dropdownBorderWidths.right);
+			data.dropdownWidth = (data.columnWidth - hBorderSum);
+			// create options
+			for (var i = 0; i < data.numberOfColumns; i++) {
+				var option = data.dropdownItems[i] = elementStore["div"].cloneNode();
+				option.innerHTML = data.rowArray[0][i].innerHTML + "&nbsp;";
+				option.setAttribute("data-index", i);
+				if (i > (data.numberOfColumns - data.dataColumnsDisplayed)) {
+					util.addClass(option, "unselectable");
+				}
+				data.dropdown.appendChild(option);
 			}
-			var cp = getPadding(currentCell);
-			cp = cellHeights[i][j] = (getNumFromProp(cp.top) + getNumFromProp(cp.bottom));
-			setStyle(currentCell, {"height":(h - cp) + "px"});
-		}
-	}
-	
-	// clean up temporary style and enable responsive CSS properties
-	wrapper.removeAttribute("style");
-	
-	addClass(table, "responsive");
-	var columnWidth = getWidth(columns[0][0]), tableWidth = getWidth(table);
-	var currentDisplayedColumn = 1, translateXOffset = 0;
-	
-	var changeDisplayedColumn = function(colIndex) {
-		if (colIndex >= (numberOfColumns - dataColumnsDisplayed)) {
-			colIndex = numberOfColumns - dataColumnsDisplayed - 1; // if over max, set to max; -1 is to convert count to index
-		} else if (colIndex < 0) {
-			colIndex = 0; // if below min, set to min
-		}
-		
-		currentDisplayedColumn = colIndex + 1, translateXOffset = (-1 * (colIndex * columnWidth))
-		for (var i = 0; i < numberOfRows; i++) {
-			// we'll always set margin on the 1st column of data - this leaves row headings in place
-			setStyle(columns[firstDataColumn][i], {
-				"height": cellHeights[1][i] + "px",
-				"margin-left": translateXOffset + "px"
+			
+			// make sure the dimensions are what we want them to be
+			util.setStyle(data.dropdown, {"visibility":"hidden"});
+			data.wrapper.appendChild(data.dropdown);
+			
+			var dItemBorders = util.getBorderWidths(data.dropdown.children[1]);
+			var dropdownHeight = util.getNumFromProp(dItemBorders.top) + util.getNumFromProp(dItemBorders.bottom); 
+			data.dropdownItemHeight = data.dropdownItems[0].clientHeight;
+			data.leftDropdownPos = data.rowArray[0][data.firstDataColumn].offsetLeft;
+			
+			var icon = elementStore["span"].cloneNode();
+			icon.setAttribute("class","actionIcon");
+			data.dropdown.appendChild(icon);
+			
+			functions.collapseDropdown(); // initialize placement in collapsed state
+			
+		},
+		changeDisplayedColumn: function(colIndex) {
+			if (colIndex >= (data.numberOfColumns - data.dataColumnsDisplayed)) {
+				colIndex = data.numberOfColumns - data.dataColumnsDisplayed - 1; // if over max, set to max; -1 is to convert count to index
+			} else if (colIndex < 0) {
+				colIndex = 0; // if below min, set to min
+			}
+			
+			data.currentDisplayedColumn = colIndex + 1;
+			data.translateXOffset = (-1 * (colIndex * data.columnWidth));
+			
+			if (data.translateXOffset > 0) { // make sure this is always no further right than a 0 margin - else it effectively makes the data cells right-align
+				data.translateXOffset = 0;	
+			}
+			for (var i = 0; i < data.numberOfRows; i++) {
+				util.setStyle(data.columns[data.firstDataColumn][i], { // we'll always set margin on the 1st column of data - this leaves row headings in place
+					"height": data.cellHeights[1][i] + "px",
+					"margin-left": data.translateXOffset + "px"
+				});
+			}	
+		},
+		// if more than one data column is displayed, we don't want to let the user pick a column that would result in fewer than this number being displayed.
+		// this effectively disables those 
+		setSelectableItems: function() {
+			var maxDisplayableCols = data.numberOfColumns - data.dataColumnsDisplayed; 
+			for (var i = 0; i < data.numberOfColumns; i++) {
+				var option = data.dropdownItems[i];
+				if (i > maxDisplayableCols) {
+					util.addClass(option, "unselectable");
+					util.removeClass(option, "selected");
+				} else {
+					util.removeClass(option, "unselectable");
+				}
+			}
+			if (data.dropdown.parentNode && maxDisplayableCols <= 0) {
+				data.dropdown = data.wrapper.removeChild(data.dropdown);
+			} else if (!data.dropdown.parentNode) {
+				data.wrapper.appendChild(data.dropdown);	
+			}
+		},
+		// Set up swipe!
+		// when the user releases, this derives the theoretical column we should snap to;
+		// since functions.changeDisplayedColumn manages out-of-bounds, we don't have to here.
+		getColumnFromPosition: function(xpos) {
+			var colIndex = 0;
+			colIndex = Math.round((-1 * xpos) / data.columnWidth);
+			return colIndex;
+		},
+		// adapt to available viewport (resize handling) 
+		setColumnsToDisplay: function() {
+			var wrapperWidth = util.getWidth(data.wrapper);
+			data.dataColumnsDisplayed = (Math.floor(wrapperWidth / data.columnWidth) - data.firstDataColumn);
+			var tableDisplayWidth = data.dataColumnsDisplayed + data.firstDataColumn;
+			util.setStyle(data.table, {
+				"width": (data.columnWidth * tableDisplayWidth) + "px",
+				"max-width": data.maxTableWidth + "px"
 			});
-		}	
-	};
-	
-	// build a dropdown out of column headings
-	var elementStore = {}; // cloneNode seems to perform best in almost every case, so we'll create once, store, and clone. this use case may be simple enough this isn't useful.
-	elementStore["div"] = d.createElement("div"), elementStore["span"] = d.createElement("span");
-	
-	var dropdown = elementStore["div"].cloneNode();
-	dropdown.setAttribute("class", "colHeadingDropdown");
-	var dropdownBorderWidths = getBorderWidths(dropdown);
-	var hBorderSum = getNumFromProp(dropdownBorderWidths.left) + getNumFromProp(dropdownBorderWidths.right);
-	var dropdownItems = [], dropdownWidth = (columnWidth - hBorderSum);
-	// create options
-	for (var i = 0; i < numberOfColumns; i++) {
-		var option = dropdownItems[i] = elementStore["div"].cloneNode();
-		option.innerHTML = rowArray[0][i].innerHTML + "&nbsp;";
-		option.setAttribute("data-index", i);
-		if (i > (numberOfColumns - dataColumnsDisplayed)) {
-			addClass(option, "unselectable");
-		}
-		dropdown.appendChild(option);
-	}
-	var setSelectableItems = function() {
-		var maxDisplayableCols = numberOfColumns - dataColumnsDisplayed; 
-		for (var i = 0; i < numberOfColumns; i++) {
-			var option = dropdownItems[i];
-			if (i > maxDisplayableCols) {
-				addClass(option, "unselectable");
-				removeClass(option, "selected");
+			var properStartCol = data.numberOfColumns - data.dataColumnsDisplayed;
+			if (data.currentDisplayedColumn > properStartCol) {
+				functions.changeDisplayedColumn(properStartCol);
+			}
+			functions.setSelectableItems();
+		},
+		collapseDropdown: function() {
+			util.setStyle(data.dropdown, {"height": data.dropdownItemHeight + "px", "left": data.leftDropdownPos + "px", "width": data.dropdownWidth + "px"});
+			util.removeClass(data.dropdown, "expanded");
+			d.removeEventListener("click", functions.collapseDropdown);
+		},
+		showDropdown: function(e) {
+			for (var i = 0; i < data.numberOfColumns; i++) {
+				if (i == data.currentDisplayedColumn) {
+					data.dropdownItems[i].setAttribute("class","selected");
+				} else if (!util.hasClass(data.dropdownItems[i], "unselectable")) {
+					data.dropdownItems[i].removeAttribute("class");
+				}
+			}
+			util.setStyle(data.dropdown, {"left": data.leftDropdownPos + "px", "width": data.dropdownWidth + "px"});
+			util.addClass(data.dropdown, "expanded");
+			e.stopPropagation();
+			d.addEventListener("click", functions.collapseDropdown);
+			
+		},		
+		selectColumn: function(e) {
+			var index = Number(e.target.getAttribute("data-index")) || Number(e.target.parentNode.getAttribute("data-index"));
+			if (index >= data.firstDataColumn && index <= (data.numberOfColumns - data.dataColumnsDisplayed)) {
+				functions.changeDisplayedColumn((index - 1));
+			}
+			functions.collapseDropdown(e);
+		},
+		toggleDropdown: function(e) {
+			if (util.hasClass(data.dropdown, "expanded")) {
+				functions.selectColumn(e);
 			} else {
-				removeClass(option, "unselectable");
+				functions.showDropdown(e);
 			}
-		}
-	}
-	
-	// make sure the dimensions are what we want them to be
-	setStyle(dropdown, {"visibility":"hidden"});
-	wrapper.appendChild(dropdown);
-	var dItemBorders = getBorderWidths(dropdown.children[1]);
-	var dropdownHeight = getNumFromProp(dItemBorders.top) + getNumFromProp(dItemBorders.bottom), itemHeight = dropdownItems[0].clientHeight;
-	dropdownHeight = numberOfRows * (itemHeight + dropdownHeight);
-	
-	var collapseDropdown = function() {
-		setStyle(dropdown, {"height": itemHeight + "px", "left": (firstDataColumn * dropdownWidth) + "px", "width": dropdownWidth + "px"});
-		removeClass(dropdown, "expanded");
-	}
-	collapseDropdown(); // initialize placement in collapsed state
-	var showDropdown = function() {
-		for (var i = 0; i < numberOfColumns; i++) {
-			if (i == currentDisplayedColumn) {
-				dropdownItems[i].setAttribute("class","selected");
-			} else if (!hasClass(dropdownItems[i], "unselectable")) {
-				dropdownItems[i].removeAttribute("class");
+		},
+		startMove: function(e) {
+			e.preventDefault();
+			util.addClass(data.table, "interactive");
+			data.startX = data.deltaX = 0; // reset
+			data.startX = e.changedTouches?e.changedTouches[0].clientX:e.clientX;
+			data.interactive = true;
+		},		
+		doMove: function(e) {
+			e.preventDefault();
+			if (!data.interactive) return;
+			data.deltaX = e.changedTouches?e.changedTouches[0].clientX:e.clientX;
+			data.deltaX = data.deltaX - data.startX;
+			var newTranslate = data.translateXOffset + data.deltaX,
+				maxTranslate = ((data.numberOfColumns - data.dataColumnsDisplayed - data.firstDataColumn) * data.columnWidth * -1) - 50; // 50 is arbitrary, but defines how far past the edge;
+				
+			if (newTranslate < maxTranslate) {
+				if (!util.hasClass(data.table, "maxRight")) {
+					util.addClass(data.table, "maxRight");
+				}
+			} else if (newTranslate > 50) {
+				if (!util.hasClass(data.table, "maxLeft")) {
+					util.addClass(data.table, "maxLeft");
+				}
+			} else {
+				for (var i = 0; i < data.numberOfRows; i++) {
+					// we'll always set margin on the 1st column of data - this leaves row headings in place
+					util.setStyle(data.columns[data.firstDataColumn][i], {"height": data.rowHeights[i] + "px", "margin-left": newTranslate + "px"});
+				}
 			}
-		}
-		setStyle(dropdown, {"height": dropdownHeight + "px", "left": (firstDataColumn * dropdownWidth) + "px", "width": dropdownWidth + "px"});
-		addClass(dropdown, "expanded");
-	};
-	var selectColumn = function(e) {
-		var index = Number(e.target.getAttribute("data-index")) || Number(e.target.parentNode.getAttribute("data-index"));
-		if (index >= firstDataColumn && index <= (numberOfColumns - dataColumnsDisplayed)) {
-			changeDisplayedColumn((index - 1));
-		}
-		collapseDropdown();
-	};
-	var toggleDropdown = function(e) {
-		if (hasClass(dropdown, "expanded")) {
-			selectColumn(e);
-		} else {
-			showDropdown();
-		}
-	}
-	
-	var icon = elementStore["span"].cloneNode();
-	icon.setAttribute("class","actionIcon");
-	dropdown.appendChild(icon);
-	dropdown.addEventListener("click", toggleDropdown);
-	
-	// Set up swipe!
-	// when the user releases, this derives the theoretical column we should snap to;
-	// since changeDisplayedColumn manages out-of-bounds, we don't have to here.
-	var getColumnFromPosition = function(xpos) {
-		var colIndex = 0;
-		colIndex = Math.round((-1 * xpos) / columnWidth);
-		return colIndex;
-	}
-	var startX = deltaX = 0, interactive = false;
-	var startMove = function(e) {
-		e.preventDefault();
-		addClass(table, "interactive");
-		startX = e.changedTouches?e.changedTouches[0].clientX:e.clientX;
-		interactive = true;
-	}
-	var doMove = function(e) {
-		e.preventDefault();
-		if (!interactive) return;
-		deltaX = e.changedTouches?e.changedTouches[0].clientX:e.clientX;
-		deltaX = deltaX - startX;
-		var newTranslate = translateXOffset + deltaX, maxTranslate = ((numberOfColumns - dataColumnsDisplayed - firstDataColumn) * columnWidth * -1) - 50;
-		if (newTranslate < maxTranslate) {
-			if (!hasClass(table, "maxRight")) {
-				addClass(table, "maxRight");
+		},
+		endMove: function(e) {
+			e.preventDefault();
+			util.removeClass(data.table, "interactive");
+			util.removeClass(data.table, "maxRight");
+			util.removeClass(data.table, "maxLeft");
+			data.interactive = false;
+			functions.changeDisplayedColumn(functions.getColumnFromPosition(data.deltaX + data.translateXOffset));
+		},
+		addEventListeners: function() {
+			data.dropdown.addEventListener("click", functions.toggleDropdown);
+			// event listeners for dragable columns
+			var tbody = data.wrapper.querySelector("tbody");
+			tbody.addEventListener("mousedown", functions.startMove);
+			tbody.addEventListener("mousemove", functions.doMove);
+			tbody.addEventListener("mouseup", functions.endMove);
+			data.table.addEventListener("mouseleave", functions.endMove); // capture mouse exits and end move. If we don't, the user has to startMove again before they can end it.
+			if (("ontouchstart" in d)) {
+				tbody.addEventListener("touchstart", functions.startMove);
+				tbody.addEventListener("touchmove", functions.doMove);
+				tbody.addEventListener("touchend", functions.endMove);
+				tbody.addEventListener("touchcancel", functions.endMove);
 			}
-		} else if (newTranslate > 50) {
-			if (!hasClass(table, "maxLeft")) {
-				addClass(table, "maxLeft");
-			}
-		} else {
-			for (var i = 0; i < numberOfRows; i++) {
-				// we'll always set margin on the 1st column of data - this leaves row headings in place
-				setStyle(columns[firstDataColumn][i],{"height":rowHeights[i]+"px", "margin-left": newTranslate + "px"});
-			}
-		}
-	}
-	var endMove = function(e) {
-		e.preventDefault();
-		removeClass(table, "interactive");
-		removeClass(table, "maxRight");
-		removeClass(table, "maxLeft");
-		interactive = false;
-		changeDisplayedColumn(getColumnFromPosition(deltaX + translateXOffset));
-	}
-	
-	// event listeners for dragable columns
-	var tbody = wrapper.querySelector("tbody");
-	tbody.addEventListener("mousedown", startMove);
-	tbody.addEventListener("mousemove", doMove);
-	tbody.addEventListener("mouseup", endMove);
-	if (("ontouchstart" in document)) {
-		tbody.addEventListener("touchstart", startMove);
-		tbody.addEventListener("touchmove", doMove);
-		tbody.addEventListener("touchend", endMove);
-		tbody.addEventListener("touchcancel", endMove);
-	}
-	
-	// final init and resize handling 
-	var setColumnsToDisplay = function() {
-		wrapperWidth = getWidth(wrapper);
-		dataColumnsDisplayed = (Math.floor(wrapperWidth / columnWidth) - firstDataColumn);
-		var tableDisplayWidth = dataColumnsDisplayed + firstDataColumn;
-		setStyle(table, {
-			"width": (columnWidth * tableDisplayWidth) + "px"		
-		});
-		var properStartCol = numberOfColumns - dataColumnsDisplayed;
-		if (currentDisplayedColumn > properStartCol) {
-			changeDisplayedColumn(properStartCol);
-		}
-		setSelectableItems();
+			
+			w.addEventListener("resize", functions.setColumnsToDisplay);
+			//w.addEventListener("orientationchange", functions.setColumnsToDisplay);
+		},
+		initialize: function() {
+			functions.initializeTable(); // set up the table
+			functions.initializeDropdown(); // build the dropdown
+			functions.setColumnsToDisplay(); // make sure everything is displaying correctly
+			functions.addEventListeners(); // let the user interact with the table now.
+		}		
 	};
 	
-	setColumnsToDisplay();
-	w.addEventListener("resize", setColumnsToDisplay);
-	//w.addEventListener("orientationchange", setColumnsToDisplay);
+	functions.initialize();
 	
 })(document, window);

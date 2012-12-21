@@ -20,16 +20,20 @@ limitations under the License.
 Responsive table presentation solutions
 =======================================
 
-Ever try to view a table on a phone? It's not much fun. Here are a couple simple solutions to this problem.
-It won't solve for every case, but it will handle a lot. This does not support every browser, but it should 
-work for the most common mobile browsers - it depends on querySelector and some CSS transformations. It could 
-be converted to use your favorite javascript library, which would extend browser support. It probably won't 
-work well in proxy browsers (Opera Mini, etc.) Without the javascript, it will display as a plain table, so 
-you can always leave that out.
+Ever try to view a table on a phone? It's not much fun. Here is a simple solution to this problem. 
+It won't solve for every case,  but it will handle a lot. There are a handful of really good solutions 
+out there that may solve your case better.
+
+You get a simple way for a user to identify what their column options are (a dropdown of available columns)
+or the option to simply scroll through the columns.
+
+This does not support every browser, but it should work for the most common mobile browsers - it depends on querySelector and some CSS transformations. 
+It could be converted to use your favorite javascript library, which would extend browser support. It probably won't work well in proxy browsers (Opera Mini, etc.)
+Without the JavaScript, it will display as a plain table, so you can always leave the script out.
 
 What works:
 
-* Takes a table to a simple two-column layout
+* Takes a table to a simple two (or more) column layout
 * Creates a drop-down out of first row cells (ideally, your thead th's), allowing a user to change which columns display.
 * Works with or without a TH per row.
 * Mouse click/drag "swipe"
@@ -37,18 +41,17 @@ What works:
 * Responsive/adaptive, tailoring number of displayed columns to available space
 * End-of-range highlighting when click/dragging
 
-This is very much still in-progress.
+This is still in-progress, but I think it may be more polish than function still remaining at this point. Browser-compatibility will be covered when this is ported to a JavaScript library that includes this
 
 Expect versions supporting some popular JS libraries once the core functionality is polished.
 
 Known issues:
 
-* Does not work correctly with colspan or rowspan (yet?)
-* IE, etc. support lacking; (depends on querySelector and similar, available in modern browsers...)
-* No row TH doesn't work at the moment
-* May not work fully with other CSS (though color changes should be fine) - it may, not fully tested yet.
+* Does not work with colspan or rowspan (yet?)
+* IE etc. support lacking (depends on querySelector and similar, available in modern browsers...)
+* May not work fully with other CSS - it may, not fully tested yet. This may take a while, so if you use this and find bugs please let me know!
 
-Version 0.4
+Version 0.5
 
 Basic Markup pattern
 --------------------
